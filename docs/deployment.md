@@ -23,7 +23,7 @@ BACKEND_IMAGE_TAG=<sha> docker compose -f deploy/oracle/docker-compose.yml up -d
 ```
 
 The Oracle VM uses `deploy/oracle/docker-compose.yml` plus `deploy/oracle/.env`.
-If the repo is not already checked out on the VM, the workflow will clone it into `ORACLE_DEPLOY_PATH` before running Compose.
+The workflow expects the repo to already be cloned into `ORACLE_DEPLOY_PATH` and will run `git pull --ff-only` before Compose.
 
 GitHub Actions expects these Oracle secrets:
 

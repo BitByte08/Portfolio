@@ -87,11 +87,10 @@ jobs:
           passphrase: ${{ env.ORACLE_SSH_PASSPHRASE }}
           script_stop: true
           debug: true
-          envs: DEPLOY_PATH,GITHUB_REPOSITORY,GITHUB_REF_NAME,GITHUB_SHA
+          envs: DEPLOY_PATH,GITHUB_REF_NAME,GITHUB_SHA
           script: |
             set -euxo pipefail
 
-            REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
             echo "DEPLOY_PATH=$DEPLOY_PATH"
             echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
             echo "GITHUB_SHA=$GITHUB_SHA"
@@ -99,24 +98,9 @@ jobs:
             command -v docker
             docker compose version
 
-            repo_initialized=0
-            if [ -d "$DEPLOY_PATH/.git" ]; then
-              repo_initialized=1
-            fi
+            test -d "$DEPLOY_PATH/.git"
 
-            if [ "$repo_initialized" -eq 0 ]; then
-              rm -rf "$DEPLOY_PATH"
-              git clone --depth 1 --branch "$GITHUB_REF_NAME" "$REPO_URL" "$DEPLOY_PATH"
-            else
-              git -C "$DEPLOY_PATH" fetch origin "$GITHUB_REF_NAME"
-              git -C "$DEPLOY_PATH" reset --hard "origin/$GITHUB_REF_NAME"
-            fi
-
-            echo "DEPLOY_PATH contents:"
-            ls -la "$DEPLOY_PATH"
-            echo "deploy/oracle contents:"
-            ls -la "$DEPLOY_PATH/deploy/oracle"
-            test -f "$DEPLOY_PATH/deploy/oracle/docker-compose.yml"
+            git -C "$DEPLOY_PATH" pull --ff-only origin "$GITHUB_REF_NAME"
 
             cd "$DEPLOY_PATH/deploy/oracle"
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml pull backend
