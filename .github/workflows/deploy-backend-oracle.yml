@@ -73,7 +73,7 @@ jobs:
 
           mkdir -p "$key_dir"
           printf '%s' "$ORACLE_SSH_KEY" | tr -d '\r' > "$key_path"
-          chmod 600 "$key_path"
+          chmod 644 "$key_path"
           echo "SSH_KEY_PATH=$key_path" >> "$GITHUB_ENV"
 
       - name: Deploy on Oracle VM
