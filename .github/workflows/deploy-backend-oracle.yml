@@ -15,8 +15,6 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: bitbyte08/portfolio-backend
   DEPLOY_PATH: ${{ secrets.ORACLE_DEPLOY_PATH || '/opt/portfolio' }}
-  GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-  GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
   ORACLE_SSH_HOST: ${{ secrets.ORACLE_SSH_HOST }}
   ORACLE_SSH_USER: ${{ secrets.ORACLE_SSH_USER }}
   ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
@@ -63,8 +61,6 @@ jobs:
       - name: Verify deploy secrets
         run: |
           test -n "$DEPLOY_PATH"
-          test -n "$GHCR_READ_TOKEN"
-          test -n "$GHCR_USERNAME"
           test -n "$ORACLE_SSH_HOST"
           test -n "$ORACLE_SSH_USER"
           test -n "$ORACLE_SSH_KEY"
@@ -78,9 +74,8 @@ jobs:
           username: ${{ env.ORACLE_SSH_USER }}
           key: ${{ env.ORACLE_SSH_KEY }}
           script_stop: true
-          envs: DEPLOY_PATH,GHCR_READ_TOKEN,GHCR_USERNAME,GITHUB_SHA
+          envs: DEPLOY_PATH,GITHUB_SHA
           script: |
             cd "$DEPLOY_PATH/deploy/oracle"
-            echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml pull backend
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml up -d --remove-orphans

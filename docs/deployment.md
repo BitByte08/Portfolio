@@ -30,8 +30,6 @@ GitHub Actions expects these Oracle secrets:
 - `ORACLE_SSH_USER`
 - `ORACLE_SSH_KEY`
 - `ORACLE_DEPLOY_PATH` optional, defaults to `/opt/portfolio`
-- `GHCR_USERNAME`
-- `GHCR_READ_TOKEN`
 
 ## Oracle VM setup
 
@@ -46,8 +44,7 @@ GitHub Actions expects these Oracle secrets:
    - `CLOUDFLARE_TUNNEL_TOKEN`
    - `BACKEND_IMAGE_REPOSITORY`
    - `BACKEND_IMAGE_TAG` if you want to pin to something other than `latest`
-5. If you keep the GHCR package private, add `GHCR_USERNAME` and `GHCR_READ_TOKEN` to GitHub Secrets so the Oracle VM can `docker login` before pulling the image.
-6. Start the stack:
+5. Start the stack:
 
 ```bash
 cd /opt/portfolio/deploy/oracle
