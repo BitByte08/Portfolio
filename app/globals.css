@@ -267,6 +267,10 @@ main {
   gap: 12px;
 }
 
+.project-card__title {
+  gap: 20px;
+}
+
 .section-head--split {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
   align-items: end;
@@ -593,7 +597,7 @@ main {
 }
 
 .project-subtitle {
-  margin: 10px 0 0;
+  margin: 16px 0 0;
   color: var(--ink-soft);
 }
 
