@@ -258,6 +258,14 @@ main {
   margin-bottom: 20px;
 }
 
+.section-heading,
+.admin-panel__header > div,
+.project-card__title,
+.project-modal__title {
+  display: grid;
+  gap: 12px;
+}
+
 .section-head--split {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
   align-items: end;
@@ -350,6 +358,13 @@ main {
 
 .section-head h2 {
   font-size: clamp(2rem, 4.2vw, 3.3rem);
+}
+
+.section-heading h2,
+.admin-panel__header h2,
+.project-card__title h3,
+.project-modal__title h3 {
+  margin: 0;
 }
 
 .section-note {
@@ -572,8 +587,7 @@ main {
   gap: 16px;
 }
 
-.project-card__header h3 {
-  margin: 8px 0 0;
+.project-card__title h3 {
   font-size: clamp(1.5rem, 2.8vw, 2.4rem);
 }
 
@@ -732,7 +746,6 @@ main {
 }
 
 .admin-panel__header h2 {
-  margin: 8px 0 0;
   font-family: var(--font-display), system-ui, sans-serif;
   font-size: clamp(1.5rem, 2.8vw, 2.4rem);
   letter-spacing: -0.05em;

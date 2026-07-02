@@ -170,7 +170,6 @@ export default async function Home({ searchParams }: HomeProps) {
             <p className="eyebrow">Projects</p>
             <h2>주요 프로젝트</h2>
           </div>
-          <p className="section-note">메인은 간단하게, 설명은 마크다운 뷰어에서 열어보는 구조로 정리했습니다.</p>
         </div>
 
         <ProjectsSection projects={data.projects} />

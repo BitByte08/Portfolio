@@ -87,7 +87,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             }}
           >
             <div className="project-card__header">
-              <div>
+              <div className="project-card__title">
                 <p className="eyebrow">{String(index + 1).padStart(2, "0")}</p>
                 <h3>{project.title}</h3>
                 <p className="project-subtitle">{project.subtitle}</p>
@@ -137,7 +137,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
             <div className="project-modal__layout">
               <aside className="project-modal__sidebar">
-                <div>
+                <div className="project-modal__title">
                   <p className="eyebrow">{activeProject.title}</p>
                   <h3 id="project-modal-title">{activeProject.subtitle}</h3>
                 </div>
