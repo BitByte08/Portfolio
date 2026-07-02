@@ -197,9 +197,6 @@ export function AdminPortfolioEditor() {
         </div>
 
         <div className="admin-actions">
-          <a className="button button-secondary" href={`${API_BASE_URL}/admin/portfolio`} target="_blank" rel="noreferrer">
-            Login with Access
-          </a>
           <button type="button" className="button button-primary" onClick={() => void fetchDocument()}>
             {isLocalPreview ? "Load with local token" : "Load via Access"}
           </button>
