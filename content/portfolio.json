@@ -1,0 +1,207 @@
+{
+  "site": {
+    "name": "정태양",
+    "headline": "융합하는 개발자, 정태양입니다",
+    "role": "Embedded · Robotics · Web",
+    "location": "부산, 대한민국",
+    "summary": "서로 다른 계층을 연결하고, 한 번의 작업이 실제 결과로 이어지도록 만드는 개발자 정태양의 포트폴리오입니다.",
+    "phone": "010-9147-2823",
+    "school": "부산소프트웨어마이스터고등학교",
+    "education": {
+      "period": "2024.03. ~ 2027.01.",
+      "major": "임베디드소프트웨어학과",
+      "school": "부산소프트웨어마이스터고등학교"
+    },
+    "email": "me@bitworkspace.kr",
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/BitByte08"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/"
+      }
+    ]
+  },
+  "intro": {
+    "contact": [
+      {
+        "label": "phone",
+        "value": "010-9147-2823",
+        "href": "tel:+821091472823"
+      },
+      {
+        "label": "email",
+        "value": "me@bitworkspace.kr",
+        "href": "mailto:me@bitworkspace.kr"
+      },
+      {
+        "label": "github",
+        "value": "BitByte08",
+        "href": "https://github.com/BitByte08"
+      }
+    ],
+    "challenge": [
+      {
+        "title": "서로 다른 계층을 잇는 구조",
+        "body": "ESP, STM32, Qt, ROS2, Web처럼 서로 다른 층을 분리하지 않고 연결해 하나의 흐름으로 묶는 일을 좋아합니다. 기술이 나뉘어 있어도 결과는 한 화면, 한 동작으로 보이게 만드는 쪽에 관심이 있습니다."
+      },
+      {
+        "title": "아이디어를 결과까지 밀어붙이는 책임감",
+        "body": "새로운 기술을 시험할 때도 끝까지 돌아가는 형태를 우선합니다. 생각만 남는 실험보다, 실제로 보여줄 수 있는 결과물을 만드는 데 더 큰 가치를 둡니다."
+      },
+      {
+        "title": "문제 옆에 서서 계속 조정하는 과정",
+        "body": "처음부터 완벽한 계획을 세우기보다, 동작하는 부분을 빠르게 만들고 실제 상황에 맞게 조정합니다. 그 과정에서 생기는 제약과 실패까지 포함해 프로젝트를 완성도로 끌어올립니다."
+      }
+    ]
+  },
+  "techStack": [
+    {
+      "name": "Language",
+      "items": ["C++", "TypeScript", "Python", "Rust", "C#", "Java"]
+    },
+    {
+      "name": "Frontend",
+      "items": ["Next.js", "React.js", "Electron"]
+    },
+    {
+      "name": "Backend",
+      "items": ["Nest.js", "FastAPI", "MySQL"]
+    },
+    {
+      "name": "Embedded",
+      "items": ["Linux", "Qt", "Unity", "Raspberry Pi", "ROS2", "STM32", "ESP32", "FreeRTOS", "MQTT", "Jetson Orin Nano"]
+    },
+    {
+      "name": "Tools",
+      "items": ["Cloudflare", "GitHub Actions", "Docker", "Fusion360", "EasyEDA", "OrCAD", "AutoCAD"]
+    }
+  ],
+  "awards": [
+    {
+      "year": "2024",
+      "status": "교내",
+      "issuer": "부산소프트웨어마이스터고등학교",
+      "name": "클론코딩 웹페이지 경진대회 장려상"
+    },
+    {
+      "year": "2024",
+      "status": "교내",
+      "issuer": "부산소프트웨어마이스터고등학교",
+      "name": "직업역량강화 AI캠프 아이디어톤 장려상"
+    },
+    {
+      "year": "2024",
+      "status": "교내",
+      "issuer": "부산소프트웨어마이스터고등학교",
+      "name": "네트워크 프로그래밍 경진대회 장려상"
+    },
+    {
+      "year": "2025",
+      "status": "교외",
+      "issuer": "SW/AI 해커톤 & 윤리캠프",
+      "name": "SW/AI 해커톤 & 윤리캠프 우수상"
+    },
+    {
+      "year": "2025",
+      "status": "교외",
+      "issuer": "SW마이스터고 연합해커톤",
+      "name": "SW마이스터고 연합해커톤 우수상"
+    },
+    {
+      "year": "2025",
+      "status": "교내",
+      "issuer": "부산소프트웨어마이스터고등학교",
+      "name": "동계해커톤 장려상"
+    }
+  ],
+  "certificates": [
+    "정보처리산업기사",
+    "임베디드기능사",
+    "Cos Pro 2급(C언어)",
+    "Topcit 3수준",
+    "2025 전자신문 우수재능 장학생"
+  ],
+  "projects": [
+    {
+      "title": "Mood Delivery",
+      "subtitle": "감정 맞춤 무인 카페 & 자율 주행 배달 서비스",
+      "meta": {
+        "period": "2025.03. ~ 2025.11.",
+        "role": "Leader, Backend, Firmware, Robotics",
+        "stack": ["ROS2", "Fusion360", "Cloudflare", "STM32", "MQTT", "Docker", "FastAPI"],
+        "team": "펌웨어(2명) / 애플리케이션(1명) / 모델링(1명) / 로보틱스(1명)",
+        "code": "https://github.com/Echo-here"
+      },
+      "summary": "학교에서 음료를 고를 때마다 멀리 있는 매점까지 가야 하고, 막상 가도 종류가 많아 선택이 막막한 경험에서 시작한 프로젝트입니다. 감정 상태가 음료 선택에 직접적인 영향을 준다는 연구를 바탕으로, 카메라로 감정을 분석해 음료를 추천하고 자율주행 로봇이 직접 배달하는 무인 카페 서비스를 설계했습니다.",
+      "details": [
+        {
+          "title": "시스템 아키텍처 + 차량 제어",
+          "body": "배달 로봇이 넓은 공간을 안정적으로 주행할 수 있도록 차체는 알루미늄과 아크릴로 구성했고, DC 모터 기반 이륜 구동에 캐스터를 추가해 방향 전환을 안정화했습니다. 차량 원격 제어는 MQTT 기반으로 설계해 브로커 연결만으로 주행 명령을 전달하도록 했고, Jetson의 리소스 부담을 줄이면서도 안정적인 제어가 가능하게 만들었습니다. 서버와 ROS2 컨테이너를 분리한 Docker 환경을 구축해 Linux, macOS, Windows 팀원이 동일한 개발 환경에서 작업할 수 있도록 정리했습니다."
+        },
+        {
+          "title": "트러블 슈팅 - UART 통신 / 시리얼 포트 점유",
+          "body": "STM32와 Jetson을 USB to Serial로 연결해 하드웨어를 제어했지만, 여러 ROS2 노드가 각각 시리얼 포트를 열면서 한 노드가 포트를 점유하면 다른 노드가 종료되는 문제가 발생했습니다. 이를 해결하기 위해 MCU 기능을 ROS2 토픽으로 추상화한 serial_node를 별도로 두고, serial_node만 시리얼 포트를 단독으로 점유하도록 구조를 바꿨습니다. 다른 노드들은 /mcu_rx, /mcu_tx 토픽만 사용하도록 분리해 충돌 없이 안정적인 통신 구조를 만들었습니다."
+        },
+        {
+          "title": "트러블 슈팅 - SLAM 맵 미생성 / odom QoS 불일치",
+          "body": "slam_toolbox로 실내 맵을 생성하려 했지만 odom 발행 주기가 불규칙해 맵이 정상적으로 생성되지 않았습니다. /odom과 /scan의 QoS 조건을 분석한 뒤, /mcu_rx 수신 버퍼를 두고 odom_node가 10Hz로 주기 발행되도록 수정했습니다. 수신 타이밍이 불규칙해도 일정한 주기로 odom이 나가도록 바꾸면서 QoS 조건을 안정적으로 만족하게 했습니다."
+        }
+      ]
+    },
+    {
+      "title": "Mother",
+      "subtitle": "IoT와 로봇이 주인공이 되는 생산성 관리 서비스",
+      "meta": {
+        "period": "2025.12. ~ 2026.04.",
+        "role": "Firmware, Robotics, AI",
+        "stack": ["ROS2", "STM32", "SLAM", "MediaPipe", "MOSSE", "WebSocket"],
+        "team": "팀원 2명 / 모델링 1명 / 애플리케이션 1명 / 로보틱스 1명",
+        "code": "https://github.com/orgs/BSSM-Mother/repositories"
+      },
+      "summary": "기존 생산 시스템이 놓치기 쉬운 구간을 로봇과 IoT 장치가 직접 이어 받도록 설계한 프로젝트입니다. 하드웨어, 로직, UI가 분리되지 않고 하나의 흐름으로 동작하도록 구성했습니다.",
+      "details": [
+        {
+          "title": "시스템 패키지와 제어를 분리한 구조",
+          "body": "기능과 핸들러를 기준으로 ROS2 노드를 9개로 나눠 구성했습니다. 각 노드는 직접적인 로직과 인터페이스를 분리했고, 네트워크와 제어는 WebSocket 기반으로 묶어 카메라 영상, 모터 상태, 시스템 로그를 실시간으로 전달했습니다."
+        },
+        {
+          "title": "로봇 하드웨어 설계 시작",
+          "body": "바퀴형 베이스와 부품 배치를 함께 고려해 로봇의 외형부터 제작했습니다. 지름 120mm 수준의 구조로 설계하고 3D 프린팅으로 프레임을 출력해, 실제 부품 조립과 유지보수가 가능한 형태를 우선했습니다. STM32 마이크로컨트롤러와 모터 드라이버는 추상화 계층을 두어 제어 부담을 줄였습니다."
+        },
+        {
+          "title": "이슈 디버깅 - 센서 동기화와 경로 추적",
+          "body": "카메라와 LiDAR를 함께 사용해 거리를 추정하다 보니, 센서 동기화가 틀어질 때 위치가 흔들리는 문제가 있었습니다. `/mcu_rx` 수신 버퍼와 odom_node의 발행 주기를 조정해 10Hz 기준의 안정적인 경로 추적이 가능하도록 수정했고, QoS 설정도 함께 맞췄습니다."
+        }
+      ]
+    },
+    {
+      "title": "Aqua Guard",
+      "subtitle": "양식장의 상태를 실시간으로 감시하는 모니터링 서비스",
+      "meta": {
+        "period": "2025.12.29. ~ 2025.12.31.",
+        "role": "Leader, Firmware",
+        "stack": ["ESP32", "FreeRTOS", "PlatformIO", "RaspberryPi"],
+        "team": "팀원 4명 / AI 1명",
+        "code": "https://github.com/orgs/BSSM-AquaGuard/repositories"
+      },
+      "summary": "pH, 수온, 수질 데이터를 여러 방식으로 수집해 양식장의 상태를 실시간으로 모니터링하는 IoT 서비스입니다. 현장 단말과 원격 수집을 함께 다루도록 설계했습니다.",
+      "details": [
+        {
+          "title": "FreeRTOS 기반 태스크 분리",
+          "body": "센서 수집과 LoRa 송신을 각각 독립된 태스크로 분리해 데이터 흐름을 단순하게 만들었습니다. ESP32의 듀얼 코어를 활용해 SensorTask와 LoRaTxTask를 서로 다른 코어에 배치했고, 처리 지연이 전체 시스템에 번지지 않도록 했습니다."
+        },
+        {
+          "title": "센서 라이브러리 직접 구현",
+          "body": "pH, 수온, 수질 센서 라이브러리를 직접 구현했습니다. FreeRTOS 환경에서 delay 호출 없이 태스크 전체를 블로킹하지 않도록 설계해, 프로젝트에 필요한 기능만 얇게 제공하는 구조로 정리했습니다."
+        },
+        {
+          "title": "이슈 디버깅 - LoRa 송신과 pH 보정",
+          "body": "ESP32의 UART 기능을 직접 구현해 물리 UART 충돌 없이 LoRa 송신이 가능하도록 했습니다. pH 센서는 초기 공개 자료와 환경 조건이 달라 보정이 필요해, 측정값을 기준 전압 기반 캘리브레이션으로 재정렬했습니다."
+        }
+      ]
+    }
+  ]
+}
