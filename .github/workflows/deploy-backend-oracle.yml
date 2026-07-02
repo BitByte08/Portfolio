@@ -1,0 +1,86 @@
+name: Deploy backend to Oracle VM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "compose.yml"
+      - "deploy/oracle/**"
+      - ".github/workflows/deploy-backend-oracle.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: bitbyte08/portfolio-backend
+  DEPLOY_PATH: ${{ secrets.ORACLE_DEPLOY_PATH || '/opt/portfolio' }}
+  GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+  GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+  ORACLE_SSH_HOST: ${{ secrets.ORACLE_SSH_HOST }}
+  ORACLE_SSH_USER: ${{ secrets.ORACLE_SSH_USER }}
+  ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-oracle:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify deploy secrets
+        run: |
+          test -n "$DEPLOY_PATH"
+          test -n "$GHCR_READ_TOKEN"
+          test -n "$GHCR_USERNAME"
+          test -n "$ORACLE_SSH_HOST"
+          test -n "$ORACLE_SSH_USER"
+          test -n "$ORACLE_SSH_KEY"
+
+      - name: Deploy on Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+        with:
+          host: ${{ env.ORACLE_SSH_HOST }}
+          username: ${{ env.ORACLE_SSH_USER }}
+          key: ${{ env.ORACLE_SSH_KEY }}
+          script_stop: true
+          envs: DEPLOY_PATH,GHCR_READ_TOKEN,GHCR_USERNAME,GITHUB_SHA
+          script: |
+            cd "$DEPLOY_PATH/deploy/oracle"
+            echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml pull backend
+            BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml up -d --remove-orphans

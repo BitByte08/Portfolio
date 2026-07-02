@@ -1,0 +1,23 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE_REPOSITORY:-ghcr.io/bitbyte08/portfolio-backend}:${BACKEND_IMAGE_TAG:-latest}
+    env_file:
+      - .env
+    environment:
+      PORT: ${PORT:-8000}
+      PORTFOLIO_DB_PATH: /var/lib/portfolio/portfolio.sqlite
+    volumes:
+      - portfolio-data:/var/lib/portfolio
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  portfolio-data:
