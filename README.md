@@ -20,6 +20,18 @@ npm run preview
 
 ```bash
 cd backend
-uv sync
-uv run uvicorn app.main:app --reload --port 8000
+npm install
+npm run start:dev
 ```
+
+## Docker deployment
+
+The backend can be deployed with Docker Compose and exposed through a Cloudflare Tunnel.
+
+```bash
+cp .env.example .env
+docker compose up --build -d
+```
+
+Set `PORTFOLIO_ADMIN_TOKEN` to protect the admin routes and `CLOUDFLARE_TUNNEL_TOKEN` to your named tunnel token.
+In Cloudflare, point the tunnel hostname at `http://backend:8000`.

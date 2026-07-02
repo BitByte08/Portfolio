@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      PORT: ${PORT:-8000}
+      PORTFOLIO_ADMIN_TOKEN: ${PORTFOLIO_ADMIN_TOKEN:-dev-admin}
+      PORTFOLIO_DB_PATH: /var/lib/portfolio/portfolio.sqlite
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - portfolio-data:/var/lib/portfolio
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  portfolio-data:
