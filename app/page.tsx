@@ -41,7 +41,6 @@ export default async function Home({ searchParams }: HomeProps) {
           <a href="#projects">Projects</a>
           <a href="#awards">Award</a>
           <a href="#certificates">Certificates</a>
-          <a href="/admin">Admin</a>
         </nav>
       </header>
 
