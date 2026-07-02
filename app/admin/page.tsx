@@ -4,7 +4,9 @@ import { headers } from "next/headers";
 import { AdminPortfolioEditor } from "@/components/admin-portfolio-editor";
 
 export const metadata: Metadata = {
-  title: "Admin",
+  title: {
+    absolute: "Admin",
+  },
   description: "Portfolio database editor",
 };
 
@@ -21,7 +23,6 @@ export default async function AdminPage() {
     host.startsWith("127.0.0.1:") ||
     host === "[::1]" ||
     host.startsWith("[::1]:");
-  const adminUrl = `https://${host}/admin`;
   const hasAccessSession = typeof accessAssertion === "string" && accessAssertion.length > 0;
 
   if (!hasAccessSession && !isLocalhost) {

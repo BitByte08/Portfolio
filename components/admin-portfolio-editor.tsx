@@ -12,7 +12,7 @@ type PortfolioDocument = {
 type LoadState = "idle" | "loading" | "ready" | "saving" | "error";
 
 const STORAGE_KEY = "portfolio-admin-session";
-const API_BASE_URL = "https://api.bitworkspace.kr";
+const API_BASE_URL = "/api";
 
 type AdminSession = {
   adminToken: string;
@@ -22,15 +22,31 @@ function safeParsePortfolio(json: string): { ok: true; value: PortfolioData } | 
   try {
     return { ok: true, value: JSON.parse(json) as PortfolioData };
   } catch {
-    return { ok: false, error: "JSON 파싱에 실패했습니다." };
+    return { ok: false, error: "JSON 문서 형식이 올바르지 않습니다." };
   }
+}
+
+function mapLoadError(status: number) {
+  if (status === 401 || status === 403) {
+    return "Cloudflare Access 인증이 필요합니다.";
+  }
+
+  return "문서를 불러오지 못했습니다.";
+}
+
+function mapSaveError(status: number) {
+  if (status === 401 || status === 403) {
+    return "Cloudflare Access 인증이 필요합니다.";
+  }
+
+  return "저장에 실패했습니다.";
 }
 
 export function AdminPortfolioEditor() {
   const [adminToken, setAdminToken] = useState("dev-admin");
   const [draft, setDraft] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
-  const [message, setMessage] = useState("토큰을 입력하고 인증한 뒤 DB 문서를 불러오세요.");
+  const [message, setMessage] = useState("Access 세션을 확인한 뒤 문서를 불러오세요.");
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isLocalPreview, setIsLocalPreview] = useState(false);
@@ -75,7 +91,7 @@ export function AdminPortfolioEditor() {
 
   async function fetchDocument() {
     setLoadState("loading");
-    setMessage(isLocalPreview ? "로컬 토큰으로 DB 문서를 읽는 중입니다." : "Cloudflare Access를 통해 DB 문서를 읽는 중입니다.");
+    setMessage(isLocalPreview ? "로컬 토큰으로 문서를 불러오는 중입니다." : "Cloudflare Access를 통해 문서를 불러오는 중입니다.");
 
     try {
       const response = await fetch(`${API_BASE_URL}/admin/portfolio`, {
@@ -86,8 +102,7 @@ export function AdminPortfolioEditor() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `문서 조회에 실패했습니다. (${response.status})`);
+        throw new Error(mapLoadError(response.status));
       }
 
       const document = (await response.json()) as PortfolioDocument;
@@ -96,7 +111,7 @@ export function AdminPortfolioEditor() {
       setIsUnlocked(true);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
-      setMessage("DB 문서를 불러왔습니다. 수정 후 저장하세요.");
+      setMessage("문서를 불러왔습니다. 수정 후 저장하세요.");
     } catch (error) {
       setLoadState("error");
       setMessage(error instanceof Error ? error.message : "문서를 불러오지 못했습니다.");
@@ -113,7 +128,7 @@ export function AdminPortfolioEditor() {
     }
 
     setLoadState("saving");
-    setMessage("DB에 저장하는 중입니다.");
+    setMessage("문서를 저장하는 중입니다.");
 
     try {
       const response = await fetch(`${API_BASE_URL}/admin/portfolio`, {
@@ -127,8 +142,7 @@ export function AdminPortfolioEditor() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `저장에 실패했습니다. (${response.status})`);
+        throw new Error(mapSaveError(response.status));
       }
 
       const document = (await response.json()) as PortfolioDocument;
@@ -137,7 +151,7 @@ export function AdminPortfolioEditor() {
       setIsUnlocked(true);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
-      setMessage("저장 완료. DB 문서가 갱신되었습니다.");
+      setMessage("저장이 완료되었습니다.");
     } catch (error) {
       setLoadState("error");
       setMessage(error instanceof Error ? error.message : "저장에 실패했습니다.");
@@ -150,30 +164,16 @@ export function AdminPortfolioEditor() {
         <div className="admin-panel__header">
           <div>
             <p className="eyebrow">Admin</p>
-            <h2>Portfolio DB Editor</h2>
+            <h2>Portfolio editor</h2>
           </div>
           <span className={`admin-status admin-status--${loadState}`}>{loadState}</span>
         </div>
 
         <p className="admin-copy">
-          먼저 Cloudflare Access로 보호된 API를 열어 세션을 만든 뒤 DB 문서를 불러오면 편집기가 열립니다. 로컬에서는 토큰 입력을 대체로 사용할 수 있습니다.
+          Cloudflare Access로 인증된 뒤 포트폴리오 문서를 불러오면 편집할 수 있습니다. 화면에는 편집에 필요한 정보만 보여줍니다.
         </p>
 
-        {!isLocalPreview ? (
-          <div className="admin-note">
-            프로덕션에서는 백엔드 주소가 고정되어 있습니다. 이 페이지는 Cloudflare Access 세션이 있어야 문서를 불러옵니다.
-          </div>
-        ) : null}
-
         <div className="admin-field-grid">
-          <div className="admin-field admin-field--info">
-            <span>Backend API</span>
-            <strong>{API_BASE_URL}</strong>
-            <p className="admin-note">
-              관리자 화면은 이 API 주소를 고정으로 사용합니다. 주소를 바꾸지 않아도 됩니다.
-            </p>
-          </div>
-
           {isLocalPreview ? (
             <label className="admin-field">
               <span>Local dev token</span>
@@ -183,25 +183,23 @@ export function AdminPortfolioEditor() {
                 placeholder="dev-admin"
                 spellCheck={false}
               />
-              <p className="admin-note">Cloudflare Access protects production. This token is only for localhost fallback.</p>
+              <p className="admin-note">프로덕션에서는 Cloudflare Access가 인증을 담당합니다.</p>
             </label>
           ) : (
             <div className="admin-field admin-field--info">
               <span>Access</span>
               <strong>Cloudflare Access 세션으로 인증됩니다.</strong>
-              <p className="admin-note">
-                이 페이지에서 별도 로그인 버튼은 필요 없습니다. 보호된 관리자 주소로 들어오면 Cloudflare가 먼저 인증을 처리합니다.
-              </p>
+              <p className="admin-note">별도 로그인 폼은 없습니다. 보호된 관리자 경로로 진입한 뒤 문서를 불러오세요.</p>
             </div>
           )}
         </div>
 
         <div className="admin-actions">
           <button type="button" className="button button-primary" onClick={() => void fetchDocument()}>
-            {isLocalPreview ? "Load with local token" : "Load via Access"}
+            {isLocalPreview ? "문서 불러오기" : "문서 불러오기"}
           </button>
           <button type="button" className="button button-secondary" onClick={() => void saveDocument()} disabled={loadState === "saving" || !isUnlocked}>
-            Save to DB
+            저장
           </button>
         </div>
 
@@ -217,9 +215,7 @@ export function AdminPortfolioEditor() {
         </div>
 
         {!isUnlocked ? (
-          <p className="admin-note">
-            인증 전에는 문서가 보이지 않습니다. 버튼을 눌러 DB를 불러오면 아래 편집기가 나타납니다.
-          </p>
+          <p className="admin-note">아직 문서를 불러오지 않았습니다. 인증 후 데이터를 표시합니다.</p>
         ) : null}
 
         {isUnlocked ? (
@@ -245,9 +241,7 @@ export function AdminPortfolioEditor() {
           ) : (
             <p className="admin-error">문서가 유효한 JSON이 아니어서 요약을 만들 수 없습니다.</p>
           )
-        ) : (
-          <p className="admin-note">아직 문서를 불러오지 않았습니다. 인증 후 데이터를 표시합니다.</p>
-        )}
+        ) : null}
       </section>
 
       {isUnlocked ? (

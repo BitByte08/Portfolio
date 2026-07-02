@@ -31,6 +31,27 @@ function readHeader(headers: IncomingHttpHeaders, name: string): string | undefi
   return value;
 }
 
+function readCookie(headers: IncomingHttpHeaders, name: string): string | undefined {
+  const cookieHeader = readHeader(headers, "cookie");
+
+  if (cookieHeader === undefined) {
+    return undefined;
+  }
+
+  const cookie = cookieHeader
+    .split(";")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(`${name}=`));
+
+  if (!cookie) {
+    return undefined;
+  }
+
+  const value = cookie.slice(name.length + 1);
+
+  return value.length > 0 ? value : undefined;
+}
+
 function readCommaSeparated(value: string | undefined): readonly string[] {
   return value
     ?.split(",")
@@ -103,7 +124,7 @@ export async function assertAdminAccessWithOptions(
     throw new UnauthorizedException("Cloudflare Access is not configured for admin access");
   }
 
-  const assertion = readHeader(headers, "cf-access-jwt-assertion");
+  const assertion = readHeader(headers, "cf-access-jwt-assertion") ?? readCookie(headers, "CF_Authorization");
 
   if (assertion === undefined || assertion.length === 0) {
     throw new UnauthorizedException("Cloudflare Access login is required");

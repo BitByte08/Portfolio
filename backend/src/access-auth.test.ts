@@ -110,3 +110,33 @@ test("assertAdminAccessWithOptions rejects requests without Cloudflare Access wh
     UnauthorizedException,
   );
 });
+
+test("assertAdminAccessWithOptions accepts the Access JWT from the CF_Authorization cookie", async (t) => {
+  const restoreNodeEnv = setEnv("NODE_ENV", "production");
+  const restoreTeam = setEnv("CF_ACCESS_TEAM_DOMAIN", "portfolio.cloudflareaccess.com");
+  const restoreAudience = setEnv("CF_ACCESS_AUDIENCE", "portfolio-admin");
+  const restoreAllowed = setEnv("CF_ACCESS_ALLOWED_EMAILS", "admin@example.com");
+  t.after(restoreNodeEnv);
+  t.after(restoreTeam);
+  t.after(restoreAudience);
+  t.after(restoreAllowed);
+
+  const { privateKey, publicKey } = await generateKeyPair("RS256");
+  const publicJwk = await exportJWK(publicKey);
+  const keyResolver = createLocalJWKSet({
+    keys: [{ ...publicJwk, alg: "RS256", kid: "test-kid", use: "sig" }],
+  });
+
+  const assertion = await new SignJWT({ email: "admin@example.com" })
+    .setProtectedHeader({ alg: "RS256", kid: "test-kid" })
+    .setIssuer("https://portfolio.cloudflareaccess.com")
+    .setAudience("portfolio-admin")
+    .setIssuedAt()
+    .setExpirationTime("2h")
+    .sign(privateKey);
+
+  const headers = { cookie: `CF_Authorization=${assertion}` } satisfies IncomingHttpHeaders;
+  const identity = await assertAdminAccessWithOptions(headers, { keyResolver });
+
+  assert.equal(identity.kind, "cloudflare-access");
+});
