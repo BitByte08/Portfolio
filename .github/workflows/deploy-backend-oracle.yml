@@ -68,7 +68,10 @@ jobs:
 
       - name: Prepare SSH key
         run: |
-          key_path="$(mktemp)"
+          key_dir="$GITHUB_WORKSPACE/.tmp"
+          key_path="$key_dir/oracle-ssh-key"
+
+          mkdir -p "$key_dir"
           printf '%s' "$ORACLE_SSH_KEY" | tr -d '\r' > "$key_path"
           chmod 600 "$key_path"
           echo "SSH_KEY_PATH=$key_path" >> "$GITHUB_ENV"
@@ -88,3 +91,7 @@ jobs:
             cd "$DEPLOY_PATH/deploy/oracle"
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml pull backend
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml up -d --remove-orphans
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f "$SSH_KEY_PATH"
