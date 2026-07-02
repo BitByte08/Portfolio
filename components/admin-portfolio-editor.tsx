@@ -12,10 +12,9 @@ type PortfolioDocument = {
 type LoadState = "idle" | "loading" | "ready" | "saving" | "error";
 
 const STORAGE_KEY = "portfolio-admin-session";
-const DEFAULT_BACKEND_URL = "http://localhost:8000";
+const API_BASE_URL = "https://api.bitworkspace.kr";
 
 type AdminSession = {
-  backendUrl: string;
   adminToken: string;
 };
 
@@ -28,7 +27,6 @@ function safeParsePortfolio(json: string): { ok: true; value: PortfolioData } | 
 }
 
 export function AdminPortfolioEditor() {
-  const [backendUrl, setBackendUrl] = useState(DEFAULT_BACKEND_URL);
   const [adminToken, setAdminToken] = useState("dev-admin");
   const [draft, setDraft] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
@@ -52,10 +50,6 @@ export function AdminPortfolioEditor() {
 
     try {
       const session = JSON.parse(raw) as Partial<AdminSession>;
-
-      if (typeof session.backendUrl === "string" && session.backendUrl.length > 0) {
-        setBackendUrl(session.backendUrl);
-      }
 
       if (typeof session.adminToken === "string" && session.adminToken.length > 0) {
         setAdminToken(session.adminToken);
@@ -84,7 +78,7 @@ export function AdminPortfolioEditor() {
     setMessage(isLocalPreview ? "로컬 토큰으로 DB 문서를 읽는 중입니다." : "Cloudflare Access를 통해 DB 문서를 읽는 중입니다.");
 
     try {
-      const response = await fetch(`${backendUrl.replace(/\/$/, "")}/admin/portfolio`, {
+      const response = await fetch(`${API_BASE_URL}/admin/portfolio`, {
         credentials: "include",
         headers: {
           "x-admin-token": adminToken,
@@ -100,7 +94,7 @@ export function AdminPortfolioEditor() {
       setDraft(JSON.stringify(document.data, null, 2));
       setUpdatedAt(document.updatedAt);
       setIsUnlocked(true);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ backendUrl, adminToken } satisfies AdminSession));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
       setMessage("DB 문서를 불러왔습니다. 수정 후 저장하세요.");
     } catch (error) {
@@ -122,7 +116,7 @@ export function AdminPortfolioEditor() {
     setMessage("DB에 저장하는 중입니다.");
 
     try {
-      const response = await fetch(`${backendUrl.replace(/\/$/, "")}/admin/portfolio`, {
+      const response = await fetch(`${API_BASE_URL}/admin/portfolio`, {
         credentials: "include",
         method: "PUT",
         headers: {
@@ -141,7 +135,7 @@ export function AdminPortfolioEditor() {
       setDraft(JSON.stringify(document.data, null, 2));
       setUpdatedAt(document.updatedAt);
       setIsUnlocked(true);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ backendUrl, adminToken } satisfies AdminSession));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
       setMessage("저장 완료. DB 문서가 갱신되었습니다.");
     } catch (error) {
@@ -162,25 +156,23 @@ export function AdminPortfolioEditor() {
         </div>
 
         <p className="admin-copy">
-          먼저 Cloudflare Access로 로그인한 뒤 DB 문서를 불러오면 편집기가 열립니다. 로컬에서는 토큰 입력을 대체로 사용할 수 있습니다.
+          먼저 Cloudflare Access로 보호된 API를 열어 세션을 만든 뒤 DB 문서를 불러오면 편집기가 열립니다. 로컬에서는 토큰 입력을 대체로 사용할 수 있습니다.
         </p>
 
         {!isLocalPreview ? (
           <div className="admin-note">
-            프로덕션에서는 토큰 버튼이 없습니다. 이 페이지는 Cloudflare Access 세션이 있어야 문서를 불러옵니다.
+            프로덕션에서는 백엔드 주소가 고정되어 있습니다. 이 페이지는 Cloudflare Access 세션이 있어야 문서를 불러옵니다.
           </div>
         ) : null}
 
         <div className="admin-field-grid">
-          <label className="admin-field">
-            <span>Backend URL</span>
-            <input
-              value={backendUrl}
-              onChange={(event) => setBackendUrl(event.target.value)}
-              placeholder="http://localhost:8000"
-              spellCheck={false}
-            />
-          </label>
+          <div className="admin-field admin-field--info">
+            <span>Backend API</span>
+            <strong>{API_BASE_URL}</strong>
+            <p className="admin-note">
+              관리자 화면은 이 API 주소를 고정으로 사용합니다. 주소를 바꾸지 않아도 됩니다.
+            </p>
+          </div>
 
           {isLocalPreview ? (
             <label className="admin-field">
@@ -205,15 +197,13 @@ export function AdminPortfolioEditor() {
         </div>
 
         <div className="admin-actions">
-          <button type="button" className="button button-secondary" onClick={() => void fetchDocument()}>
+          <a className="button button-secondary" href={`${API_BASE_URL}/admin/portfolio`} target="_blank" rel="noreferrer">
+            Login with Access
+          </a>
+          <button type="button" className="button button-primary" onClick={() => void fetchDocument()}>
             {isLocalPreview ? "Load with local token" : "Load via Access"}
           </button>
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={() => void saveDocument()}
-            disabled={loadState === "saving" || !isUnlocked}
-          >
+          <button type="button" className="button button-secondary" onClick={() => void saveDocument()} disabled={loadState === "saving" || !isUnlocked}>
             Save to DB
           </button>
         </div>
