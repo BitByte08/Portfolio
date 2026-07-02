@@ -1,0 +1,7 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS portfolio_document (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  payload TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
