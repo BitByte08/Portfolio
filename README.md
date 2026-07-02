@@ -33,5 +33,6 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Set `PORTFOLIO_ADMIN_TOKEN` to protect the admin routes and `CLOUDFLARE_TUNNEL_TOKEN` to your named tunnel token.
-In Cloudflare, point the tunnel hostname at `http://backend:8000`.
+Set `PORTFOLIO_WEB_ORIGIN` to the frontend origin, `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUDIENCE` to match your Cloudflare Access app, and `CF_ACCESS_ALLOWED_EMAILS` to the admin email allowlist.
+`PORTFOLIO_ADMIN_TOKEN` stays available only as a localhost fallback; production admin access should come from Cloudflare Access.
+In Cloudflare, point the tunnel hostname at `http://backend:8000`, then protect the admin hostname or path with Access.

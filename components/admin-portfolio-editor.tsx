@@ -77,6 +77,7 @@ export function AdminPortfolioEditor() {
 
     try {
       const response = await fetch(`${backendUrl.replace(/\/$/, "")}/admin/portfolio`, {
+        credentials: "include",
         headers: {
           "x-admin-token": adminToken,
         },
@@ -113,6 +114,7 @@ export function AdminPortfolioEditor() {
 
     try {
       const response = await fetch(`${backendUrl.replace(/\/$/, "")}/admin/portfolio`, {
+        credentials: "include",
         method: "PUT",
         headers: {
           "content-type": "application/json",
@@ -165,13 +167,14 @@ export function AdminPortfolioEditor() {
           </label>
 
           <label className="admin-field">
-            <span>Admin Token</span>
+            <span>Local dev token</span>
             <input
               value={adminToken}
               onChange={(event) => setAdminToken(event.target.value)}
               placeholder="dev-admin"
               spellCheck={false}
             />
+            <p className="admin-note">Cloudflare Access protects production. This token is only for localhost fallback.</p>
           </label>
         </div>
 

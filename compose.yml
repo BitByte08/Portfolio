@@ -4,8 +4,12 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
+      CF_ACCESS_ALLOWED_EMAILS: ${CF_ACCESS_ALLOWED_EMAILS:-}
+      CF_ACCESS_AUDIENCE: ${CF_ACCESS_AUDIENCE:-portfolio-admin}
+      CF_ACCESS_TEAM_DOMAIN: ${CF_ACCESS_TEAM_DOMAIN:-}
       PORT: ${PORT:-8000}
       PORTFOLIO_ADMIN_TOKEN: ${PORTFOLIO_ADMIN_TOKEN:-dev-admin}
+      PORTFOLIO_WEB_ORIGIN: ${PORTFOLIO_WEB_ORIGIN:-http://localhost:3000}
       PORTFOLIO_DB_PATH: /var/lib/portfolio/portfolio.sqlite
     ports:
       - "${PORT:-8000}:8000"

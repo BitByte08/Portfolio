@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Headers, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Req } from "@nestjs/common";
+import type { Request } from "express";
 
-import { assertAdminToken } from "./admin-auth.js";
+import { assertAdminAccess } from "./access-auth.js";
 import { PortfolioService } from "./portfolio.service.js";
 import { ContactDto } from "./contact.dto.js";
 
@@ -19,14 +20,14 @@ export class AppController {
   }
 
   @Get("/admin/portfolio")
-  adminPortfolio(@Headers("x-admin-token") token: string | undefined) {
-    assertAdminToken(token);
+  async adminPortfolio(@Req() request: Request) {
+    await assertAdminAccess(request.headers);
     return this.portfolioService.getAdminPortfolio();
   }
 
   @Put("/admin/portfolio")
-  updatePortfolio(@Headers("x-admin-token") token: string | undefined, @Body() payload: unknown) {
-    assertAdminToken(token);
+  async updatePortfolio(@Req() request: Request, @Body() payload: unknown) {
+    await assertAdminAccess(request.headers);
     return this.portfolioService.savePortfolio(payload);
   }
 
