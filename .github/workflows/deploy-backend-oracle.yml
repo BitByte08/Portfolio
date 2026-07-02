@@ -86,8 +86,18 @@ jobs:
           key_path: ${{ env.SSH_KEY_PATH }}
           passphrase: ${{ env.ORACLE_SSH_PASSPHRASE }}
           script_stop: true
-          envs: DEPLOY_PATH,GITHUB_SHA
+          envs: DEPLOY_PATH,GITHUB_REPOSITORY,GITHUB_REF_NAME,GITHUB_SHA
           script: |
+            REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
+
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              rm -rf "$DEPLOY_PATH"
+              git clone --depth 1 --branch "$GITHUB_REF_NAME" "$REPO_URL" "$DEPLOY_PATH"
+            else
+              git -C "$DEPLOY_PATH" fetch origin "$GITHUB_REF_NAME"
+              git -C "$DEPLOY_PATH" reset --hard "origin/$GITHUB_REF_NAME"
+            fi
+
             cd "$DEPLOY_PATH/deploy/oracle"
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml pull backend
             BACKEND_IMAGE_TAG="$GITHUB_SHA" docker compose -f docker-compose.yml up -d --remove-orphans
