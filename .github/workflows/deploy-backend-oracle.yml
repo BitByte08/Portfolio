@@ -18,6 +18,7 @@ env:
   ORACLE_SSH_HOST: ${{ secrets.ORACLE_SSH_HOST }}
   ORACLE_SSH_USER: ${{ secrets.ORACLE_SSH_USER }}
   ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+  ORACLE_SSH_PASSPHRASE: ${{ secrets.ORACLE_SSH_PASSPHRASE }}
 
 jobs:
   build-and-push:
@@ -65,6 +66,13 @@ jobs:
           test -n "$ORACLE_SSH_USER"
           test -n "$ORACLE_SSH_KEY"
 
+      - name: Prepare SSH key
+        run: |
+          key_path="$(mktemp)"
+          printf '%s' "$ORACLE_SSH_KEY" | tr -d '\r' > "$key_path"
+          chmod 600 "$key_path"
+          echo "SSH_KEY_PATH=$key_path" >> "$GITHUB_ENV"
+
       - name: Deploy on Oracle VM
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -72,7 +80,8 @@ jobs:
         with:
           host: ${{ env.ORACLE_SSH_HOST }}
           username: ${{ env.ORACLE_SSH_USER }}
-          key: ${{ env.ORACLE_SSH_KEY }}
+          key_path: ${{ env.SSH_KEY_PATH }}
+          passphrase: ${{ env.ORACLE_SSH_PASSPHRASE }}
           script_stop: true
           envs: DEPLOY_PATH,GITHUB_SHA
           script: |

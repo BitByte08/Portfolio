@@ -29,6 +29,7 @@ GitHub Actions expects these Oracle secrets:
 - `ORACLE_SSH_HOST`
 - `ORACLE_SSH_USER`
 - `ORACLE_SSH_KEY`
+- `ORACLE_SSH_PASSPHRASE` optional, if the private key is encrypted
 - `ORACLE_DEPLOY_PATH` optional, defaults to `/opt/portfolio`
 
 ## Oracle VM setup
