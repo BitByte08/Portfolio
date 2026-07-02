@@ -2,18 +2,16 @@
 
 This repo is split into two deploy targets:
 
-- Frontend: Cloudflare Workers via OpenNext.
+- Frontend: Cloudflare Workers via OpenNext, deployed from Cloudflare's Git integration or manual deploy flow.
 - Backend: Docker container on an Oracle VM, fronted by Cloudflare Tunnel.
 
 ## Frontend
 
-GitHub Actions deploys the frontend on pushes to `main` with:
+Deploy the frontend directly in Cloudflare Workers.
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `PORTFOLIO_BACKEND_URL`
-
-`PORTFOLIO_BACKEND_URL` should point at the public tunnel hostname that reaches the Oracle VM backend.
+- Connect the GitHub repo to the Workers project, or use Cloudflare's deploy flow.
+- Set `PORTFOLIO_BACKEND_URL` in the Workers environment so the app can reach the Oracle VM backend tunnel hostname.
+- The frontend no longer has a GitHub Actions deploy job in this repo.
 
 ## Backend
 
