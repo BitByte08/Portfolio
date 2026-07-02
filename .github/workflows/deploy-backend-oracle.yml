@@ -99,7 +99,12 @@ jobs:
             command -v docker
             docker compose version
 
-            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+            repo_initialized=0
+            if [ -d "$DEPLOY_PATH/.git" ]; then
+              repo_initialized=1
+            fi
+
+            if [ "$repo_initialized" -eq 0 ]; then
               rm -rf "$DEPLOY_PATH"
               git clone --depth 1 --branch "$GITHUB_REF_NAME" "$REPO_URL" "$DEPLOY_PATH"
             else
