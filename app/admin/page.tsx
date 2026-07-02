@@ -21,8 +21,7 @@ export default async function AdminPage() {
     host.startsWith("127.0.0.1:") ||
     host === "[::1]" ||
     host.startsWith("[::1]:");
-  const accessTeamDomain = process.env.CF_ACCESS_TEAM_DOMAIN?.trim() ?? "bitbyte08.cloudflareaccess.com";
-  const accessLoginUrl = `https://${accessTeamDomain}/cdn-cgi/access/login/${host}?redirect_url=${encodeURIComponent("/admin")}`;
+  const adminUrl = `https://${host}/admin`;
   const hasAccessSession = typeof accessAssertion === "string" && accessAssertion.length > 0;
 
   if (!hasAccessSession && !isLocalhost) {
@@ -38,20 +37,18 @@ export default async function AdminPage() {
           <p className="eyebrow">Admin</p>
           <h1>Access required</h1>
           <p className="hero-summary">
-            이 페이지는 Cloudflare Access로 잠겨 있습니다. 버튼을 눌러 로그인하면 다시 이 화면으로 돌아옵니다.
+            Cloudflare Access로 잠긴 관리자 화면입니다. 아래 버튼을 누르면 보호된 <code>/admin</code> 주소로 이동합니다.
           </p>
         </section>
 
         <div className="admin-panel">
-          <p className="admin-copy">
-            Cloudflare가 먼저 인증을 처리하고, 인증된 요청만 편집기를 볼 수 있게 합니다.
-          </p>
+          <p className="admin-copy">로그인은 Cloudflare가 먼저 처리합니다. 앱 안에 별도 로그인 폼은 두지 않았습니다.</p>
           <div className="admin-actions">
-            <a className="button button-primary" href={accessLoginUrl}>
-              Log in with Cloudflare Access
+            <a className="button button-primary" href={adminUrl}>
+              보호된 관리자 페이지 열기
             </a>
             <a className="button button-secondary" href="/">
-              Back home
+              홈으로
             </a>
           </div>
         </div>
@@ -66,7 +63,7 @@ export default async function AdminPage() {
           Portfolio
         </a>
         <a className="button button-secondary" href="/">
-          Back home
+          홈으로
         </a>
       </header>
 
@@ -74,8 +71,7 @@ export default async function AdminPage() {
         <p className="eyebrow">Admin</p>
         <h1>Database control panel</h1>
         <p className="hero-summary">
-          포트폴리오의 모든 공개 데이터를 DB 한 줄 문서로 관리합니다. Cloudflare Access가 먼저 인증을 처리한 뒤 문서를
-          불러오고 저장할 수 있습니다.
+          포트폴리오 데이터를 DB에서 직접 확인하고 수정하는 관리자 화면입니다. Cloudflare Access 인증이 먼저 필요합니다.
         </p>
       </section>
 
