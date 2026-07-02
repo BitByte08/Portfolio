@@ -32,6 +32,14 @@ type ProjectsSectionProps = {
   projects: Project[];
 };
 
+function formatTeam(team: string) {
+  return team
+    .split("/")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)
+    .join(" · ");
+}
+
 function buildMarkdown(project: Project) {
   const sections = [
     `# ${project.title}`,
@@ -40,7 +48,7 @@ function buildMarkdown(project: Project) {
     `- 기간 :: ${project.meta.period}`,
     `- 역할 :: ${project.meta.role}`,
     `- 기술 스택 :: ${project.meta.stack.join(", ")}`,
-    `- 인원 :: ${project.meta.team}`,
+    `- 팀 :: ${formatTeam(project.meta.team)}`,
     `- 소스 코드 :: ${project.meta.code}`,
     "",
     project.summary,
@@ -105,7 +113,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               </div>
               <div>
                 <span>Team</span>
-                <strong>{project.meta.team}</strong>
+                <strong>{formatTeam(project.meta.team)}</strong>
               </div>
             </div>
 
@@ -155,7 +163,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   </div>
                   <div>
                     <span>Team</span>
-                    <strong>{activeProject.meta.team}</strong>
+                    <strong>{formatTeam(activeProject.meta.team)}</strong>
                   </div>
                   <div>
                     <span>Source</span>

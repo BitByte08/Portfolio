@@ -39,10 +39,12 @@ export function AwardsSection({ awards, initialYear }: AwardsSectionProps) {
               type="button"
               role="tab"
               aria-selected={year === activeYear}
+              aria-current={year === activeYear ? "true" : undefined}
               className={year === activeYear ? "section-switcher__button is-active" : "section-switcher__button"}
               onClick={() => setActiveYear(year)}
             >
-              {year}
+              <span className="section-switcher__button-year">{year}</span>
+              <span className="section-switcher__button-label">YEAR</span>
             </button>
           ))}
         </div>

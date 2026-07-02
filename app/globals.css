@@ -284,12 +284,19 @@ main {
 }
 
 .section-switcher__button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   min-height: 40px;
-  padding: 0 14px;
+  padding: 8px 14px 7px;
   border: 1px solid var(--hairline);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.6);
   color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
@@ -299,6 +306,25 @@ main {
   border-color: var(--hairline-strong);
   color: var(--ink);
   background: rgba(255, 255, 255, 0.9);
+}
+
+.section-switcher__button.is-active {
+  border-color: rgba(17, 17, 17, 0.32);
+  background: var(--ink);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(17, 17, 17, 0.12);
+}
+
+.section-switcher__button-year {
+  font-size: 0.94rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.section-switcher__button-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .award-panel {
