@@ -260,6 +260,7 @@ main {
 
 .section-heading,
 .admin-panel__header > div,
+.credential-section__title,
 .project-card__title,
 .project-modal__title {
   display: grid;

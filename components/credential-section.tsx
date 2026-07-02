@@ -12,7 +12,7 @@ export function CredentialSection({ eyebrow, title, children, controls, id }: Cr
   return (
     <article className="section-block section-block--tight credential-section" id={id}>
       <div className={controls ? "section-head section-head--split credential-section__head" : "section-head"}>
-        <div>
+        <div className="credential-section__title">
           <p className="eyebrow">{eyebrow}</p>
           <h2>{title}</h2>
         </div>
