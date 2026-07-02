@@ -37,15 +37,15 @@ export default async function AdminPage() {
           <p className="eyebrow">Admin</p>
           <h1>Access required</h1>
           <p className="hero-summary">
-            Cloudflare Access로 잠긴 관리자 화면입니다. 아래 버튼을 누르면 보호된 <code>/admin</code> 주소로 이동합니다.
+            Cloudflare Access로 잠긴 관리자 화면입니다. 아래 버튼을 누르면 Access 로그인 창으로 이동합니다.
           </p>
         </section>
 
         <div className="admin-panel">
           <p className="admin-copy">로그인은 Cloudflare가 먼저 처리합니다. 앱 안에 별도 로그인 폼은 두지 않았습니다.</p>
           <div className="admin-actions">
-            <a className="button button-primary" href={adminUrl}>
-              보호된 관리자 페이지 열기
+            <a className="button button-primary" href="/admin/login">
+              Cloudflare Access 로그인
             </a>
             <a className="button button-secondary" href="/">
               홈으로

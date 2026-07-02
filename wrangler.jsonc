@@ -5,7 +5,9 @@
   "compatibility_date": "2024-12-30",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "vars": {
-    "PORTFOLIO_BACKEND_URL": "https://api.bitworkspace.kr"
+    "PORTFOLIO_BACKEND_URL": "https://api.bitworkspace.kr",
+    "CF_ACCESS_TEAM_DOMAIN": "bitbyte08.cloudflareaccess.com",
+    "CF_ACCESS_AUDIENCE": "portfolio-admin"
   },
   "assets": {
     "directory": ".open-next/assets",
