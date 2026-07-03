@@ -750,8 +750,9 @@ main {
 
 .admin-panel-grid {
   display: grid;
-  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
   gap: 18px;
+  align-items: start;
   padding-top: 24px;
 }
 
@@ -759,6 +760,7 @@ main {
   display: grid;
   gap: 18px;
   padding: 20px;
+  min-width: 0;
   border: 1px solid var(--hairline);
   border-radius: 24px;
   background: var(--canvas-elevated);
@@ -767,6 +769,13 @@ main {
 
 .admin-panel--editor {
   min-height: 640px;
+  overflow: hidden;
+}
+
+.admin-panel--summary {
+  position: sticky;
+  top: 24px;
+  align-self: start;
 }
 
 .admin-panel__header {
@@ -1220,6 +1229,10 @@ main {
 
   .admin-panel {
     padding: 16px;
+  }
+
+  .admin-panel--summary {
+    position: static;
   }
 
   .admin-panel__header {

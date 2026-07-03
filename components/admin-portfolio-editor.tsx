@@ -207,7 +207,7 @@ export function AdminPortfolioEditor() {
 
   return (
     <div className="admin-panel-grid">
-      <section className="admin-panel">
+      <section className="admin-panel admin-panel--summary">
         <div className="admin-panel__header">
           <div>
             <p className="eyebrow">Admin</p>
