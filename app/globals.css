@@ -873,6 +873,118 @@ main {
   gap: 12px;
 }
 
+.admin-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.admin-card__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-card__header h3 {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+}
+
+.admin-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-field--wide {
+  grid-column: 1 / -1;
+}
+
+.admin-textarea {
+  min-height: 96px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.admin-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-list-item {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.admin-list-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-list-item__header strong {
+  font-size: 0.98rem;
+}
+
+.admin-sublist {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-sublist__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sublist__row input {
+  flex: 1;
+}
+
+.admin-markdown-preview {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.admin-markdown-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-markdown-preview__header span {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .admin-status {
   display: inline-flex;
   align-items: center;
@@ -1030,7 +1142,8 @@ main {
 
   .admin-field-grid,
   .admin-metadata,
-  .admin-stat-grid {
+  .admin-stat-grid,
+  .admin-fields {
     grid-template-columns: 1fr;
   }
 }
@@ -1115,6 +1228,13 @@ main {
 
   .admin-editor {
     min-height: 420px;
+  }
+
+  .admin-card__header,
+  .admin-list-item__header,
+  .admin-sublist__row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

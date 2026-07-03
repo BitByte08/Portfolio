@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { MarkdownViewer } from "@/components/markdown-viewer";
 import type { PortfolioData } from "@/lib/portfolio";
 
 type PortfolioDocument = {
@@ -18,12 +19,52 @@ type AdminSession = {
   adminToken: string;
 };
 
-function safeParsePortfolio(json: string): { ok: true; value: PortfolioData } | { ok: false; error: string } {
-  try {
-    return { ok: true, value: JSON.parse(json) as PortfolioData };
-  } catch {
-    return { ok: false, error: "JSON 문서 형식이 올바르지 않습니다." };
-  }
+function clonePortfolio(data: PortfolioData): PortfolioData {
+  return JSON.parse(JSON.stringify(data)) as PortfolioData;
+}
+
+function createChallenge(): PortfolioData["intro"]["challenge"][number] {
+  return {
+    title: "새 항목",
+    body: "설명을 입력하세요.",
+  };
+}
+
+function createTechGroup(): PortfolioData["techStack"][number] {
+  return {
+    name: "New Group",
+    items: ["Item"],
+  };
+}
+
+function createAward(): PortfolioData["awards"][number] {
+  return {
+    year: "2025",
+    status: "교내",
+    issuer: "기관명",
+    name: "수상명",
+  };
+}
+
+function createProject(): PortfolioData["projects"][number] {
+  return {
+    title: "New Project",
+    subtitle: "프로젝트 설명",
+    meta: {
+      period: "2025.01. ~ 2025.12.",
+      role: "Role",
+      stack: ["Next.js"],
+      team: "Team",
+      code: "",
+    },
+    summary: "프로젝트 요약을 입력하세요.",
+    details: [
+      {
+        title: "Detail",
+        body: "세부 설명을 입력하세요.",
+      },
+    ],
+  };
 }
 
 function mapLoadError(status: number) {
@@ -44,11 +85,10 @@ function mapSaveError(status: number) {
 
 export function AdminPortfolioEditor() {
   const [adminToken, setAdminToken] = useState("dev-admin");
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState<PortfolioData | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [message, setMessage] = useState("Access 세션을 확인한 뒤 문서를 불러오세요.");
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [isLocalPreview, setIsLocalPreview] = useState(false);
 
   useEffect(() => {
@@ -75,19 +115,30 @@ export function AdminPortfolioEditor() {
     }
   }, []);
 
-  const parsedDraft = useMemo(() => safeParsePortfolio(draft), [draft]);
   const stats = useMemo(() => {
-    if (!parsedDraft.ok) {
+    if (!draft) {
       return null;
     }
 
     return {
-      projectCount: parsedDraft.value.projects.length,
-      awardCount: parsedDraft.value.awards.length,
-      certificateCount: parsedDraft.value.certificates.length,
-      stackGroups: parsedDraft.value.techStack.length,
+      projectCount: draft.projects.length,
+      awardCount: draft.awards.length,
+      certificateCount: draft.certificates.length,
+      stackGroups: draft.techStack.length,
     };
-  }, [parsedDraft]);
+  }, [draft]);
+
+  function mutateDraft(mutator: (next: PortfolioData) => void) {
+    setDraft((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const next = clonePortfolio(current);
+      mutator(next);
+      return next;
+    });
+  }
 
   async function fetchDocument() {
     setLoadState("loading");
@@ -106,12 +157,11 @@ export function AdminPortfolioEditor() {
       }
 
       const document = (await response.json()) as PortfolioDocument;
-      setDraft(JSON.stringify(document.data, null, 2));
+      setDraft(document.data);
       setUpdatedAt(document.updatedAt);
-      setIsUnlocked(true);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
-      setMessage("문서를 불러왔습니다. 수정 후 저장하세요.");
+      setMessage("문서를 불러왔습니다. 카드 버튼으로 항목을 추가하거나 삭제할 수 있습니다.");
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
     } catch (error) {
       setLoadState("error");
       setMessage(error instanceof Error ? error.message : "문서를 불러오지 못했습니다.");
@@ -119,11 +169,9 @@ export function AdminPortfolioEditor() {
   }
 
   async function saveDocument() {
-    const parsed = safeParsePortfolio(draft);
-
-    if (!parsed.ok) {
+    if (!draft) {
       setLoadState("error");
-      setMessage(parsed.error);
+      setMessage("먼저 문서를 불러오세요.");
       return;
     }
 
@@ -138,7 +186,7 @@ export function AdminPortfolioEditor() {
           "content-type": "application/json",
           "x-admin-token": adminToken,
         },
-        body: JSON.stringify(parsed.value),
+        body: JSON.stringify(draft),
       });
 
       if (!response.ok) {
@@ -146,12 +194,11 @@ export function AdminPortfolioEditor() {
       }
 
       const document = (await response.json()) as PortfolioDocument;
-      setDraft(JSON.stringify(document.data, null, 2));
+      setDraft(document.data);
       setUpdatedAt(document.updatedAt);
-      setIsUnlocked(true);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
       setLoadState("ready");
       setMessage("저장이 완료되었습니다.");
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ adminToken } satisfies AdminSession));
     } catch (error) {
       setLoadState("error");
       setMessage(error instanceof Error ? error.message : "저장에 실패했습니다.");
@@ -170,7 +217,7 @@ export function AdminPortfolioEditor() {
         </div>
 
         <p className="admin-copy">
-          Cloudflare Access로 인증된 뒤 포트폴리오 문서를 불러오면 편집할 수 있습니다. 화면에는 편집에 필요한 정보만 보여줍니다.
+          Cloudflare Access로 인증한 뒤 문서를 불러오면, 아래 카드들에서 직접 항목을 추가하거나 삭제할 수 있습니다.
         </p>
 
         <div className="admin-field-grid">
@@ -189,16 +236,16 @@ export function AdminPortfolioEditor() {
             <div className="admin-field admin-field--info">
               <span>Access</span>
               <strong>Cloudflare Access 세션으로 인증됩니다.</strong>
-              <p className="admin-note">별도 로그인 폼은 없습니다. 보호된 관리자 경로로 진입한 뒤 문서를 불러오세요.</p>
+              <p className="admin-note">별도 로그인 폼은 없습니다. 보호된 관리자 경로로 들어온 뒤 문서를 불러오세요.</p>
             </div>
           )}
         </div>
 
         <div className="admin-actions">
           <button type="button" className="button button-primary" onClick={() => void fetchDocument()}>
-            {isLocalPreview ? "문서 불러오기" : "문서 불러오기"}
+            문서 불러오기
           </button>
-          <button type="button" className="button button-secondary" onClick={() => void saveDocument()} disabled={loadState === "saving" || !isUnlocked}>
+          <button type="button" className="button button-secondary" onClick={() => void saveDocument()} disabled={loadState === "saving" || !draft}>
             저장
           </button>
         </div>
@@ -214,55 +261,583 @@ export function AdminPortfolioEditor() {
           </div>
         </div>
 
-        {!isUnlocked ? (
-          <p className="admin-note">아직 문서를 불러오지 않았습니다. 인증 후 데이터를 표시합니다.</p>
-        ) : null}
+        {!draft ? <p className="admin-note">아직 문서를 불러오지 않았습니다. 인증 후 데이터를 표시합니다.</p> : null}
 
-        {isUnlocked ? (
-          stats ? (
-            <div className="admin-stat-grid" aria-label="document summary">
-              <div>
-                <span>Projects</span>
-                <strong>{stats.projectCount}</strong>
-              </div>
-              <div>
-                <span>Awards</span>
-                <strong>{stats.awardCount}</strong>
-              </div>
-              <div>
-                <span>Certificates</span>
-                <strong>{stats.certificateCount}</strong>
-              </div>
-              <div>
-                <span>Stack groups</span>
-                <strong>{stats.stackGroups}</strong>
-              </div>
+        {stats ? (
+          <div className="admin-stat-grid" aria-label="document summary">
+            <div>
+              <span>Projects</span>
+              <strong>{stats.projectCount}</strong>
             </div>
-          ) : (
-            <p className="admin-error">문서가 유효한 JSON이 아니어서 요약을 만들 수 없습니다.</p>
-          )
+            <div>
+              <span>Awards</span>
+              <strong>{stats.awardCount}</strong>
+            </div>
+            <div>
+              <span>Certificates</span>
+              <strong>{stats.certificateCount}</strong>
+            </div>
+            <div>
+              <span>Stack groups</span>
+              <strong>{stats.stackGroups}</strong>
+            </div>
+          </div>
         ) : null}
       </section>
 
-      {isUnlocked ? (
+      {draft ? (
         <section className="admin-panel admin-panel--editor">
           <div className="admin-panel__header">
             <div>
-              <p className="eyebrow">Document</p>
-              <h2>JSON source</h2>
+              <p className="eyebrow">Content</p>
+              <h2>Card editor</h2>
             </div>
             <span className="admin-status admin-status--ready">editable</span>
           </div>
 
-          <textarea
-            className="admin-editor"
-            value={draft}
-            spellCheck={false}
-            onChange={(event) => setDraft(event.target.value)}
-            aria-label="Portfolio JSON editor"
-          />
+          <div className="admin-stack">
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Site</p>
+                  <h3>Basic info</h3>
+                </div>
+              </div>
+              <div className="admin-fields">
+                <label className="admin-field">
+                  <span>Name</span>
+                  <input value={draft.site.name} onChange={(event) => mutateDraft((next) => { next.site.name = event.target.value; })} />
+                </label>
+                <label className="admin-field">
+                  <span>Headline</span>
+                  <input value={draft.site.headline} onChange={(event) => mutateDraft((next) => { next.site.headline = event.target.value; })} />
+                </label>
+                <label className="admin-field">
+                  <span>Role</span>
+                  <input value={draft.site.role} onChange={(event) => mutateDraft((next) => { next.site.role = event.target.value; })} />
+                </label>
+                <label className="admin-field">
+                  <span>Location</span>
+                  <input value={draft.site.location} onChange={(event) => mutateDraft((next) => { next.site.location = event.target.value; })} />
+                </label>
+                <label className="admin-field admin-field--wide">
+                  <span>Summary</span>
+                  <textarea
+                    className="admin-textarea"
+                    value={draft.site.summary}
+                    onChange={(event) => mutateDraft((next) => { next.site.summary = event.target.value; })}
+                  />
+                </label>
+                <label className="admin-field">
+                  <span>Phone</span>
+                  <input value={draft.site.phone} onChange={(event) => mutateDraft((next) => { next.site.phone = event.target.value; })} />
+                </label>
+                <label className="admin-field">
+                  <span>Email</span>
+                  <input value={draft.site.email} onChange={(event) => mutateDraft((next) => { next.site.email = event.target.value; })} />
+                </label>
+                <label className="admin-field">
+                  <span>School</span>
+                  <input value={draft.site.school} onChange={(event) => mutateDraft((next) => { next.site.school = event.target.value; })} />
+                </label>
+              </div>
+            </section>
 
-          {!parsedDraft.ok ? <p className="admin-error">{parsedDraft.error}</p> : null}
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Challenge</p>
+                  <h3>Try, Challenge</h3>
+                </div>
+                <button type="button" className="button" onClick={() => mutateDraft((next) => { next.intro.challenge.push(createChallenge()); })}>
+                  항목 추가
+                </button>
+              </div>
+              <div className="admin-list">
+                {draft.intro.challenge.map((item, index) => (
+                  <article className="admin-list-item" key={`${item.title}-${index}`}>
+                    <div className="admin-list-item__header">
+                      <strong>항목 {index + 1}</strong>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() =>
+                          mutateDraft((next) => {
+                            next.intro.challenge.splice(index, 1);
+                          })
+                        }
+                      >
+                        삭제
+                      </button>
+                    </div>
+                    <div className="admin-fields">
+                      <label className="admin-field">
+                        <span>Title</span>
+                        <input
+                          value={item.title}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.intro.challenge[index].title = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field admin-field--wide">
+                        <span>Body</span>
+                        <textarea
+                          className="admin-textarea"
+                          value={item.body}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.intro.challenge[index].body = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Stack</p>
+                  <h3>Tech stack</h3>
+                </div>
+                <button type="button" className="button" onClick={() => mutateDraft((next) => { next.techStack.push(createTechGroup()); })}>
+                  그룹 추가
+                </button>
+              </div>
+              <div className="admin-list">
+                {draft.techStack.map((group, groupIndex) => (
+                  <article className="admin-list-item" key={`${group.name}-${groupIndex}`}>
+                    <div className="admin-list-item__header">
+                      <strong>그룹 {groupIndex + 1}</strong>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() =>
+                          mutateDraft((next) => {
+                            next.techStack.splice(groupIndex, 1);
+                          })
+                        }
+                      >
+                        삭제
+                      </button>
+                    </div>
+                    <div className="admin-fields">
+                      <label className="admin-field">
+                        <span>Name</span>
+                        <input
+                          value={group.name}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.techStack[groupIndex].name = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <div className="admin-field admin-field--wide">
+                        <span>Items</span>
+                        <div className="admin-sublist">
+                          {group.items.map((item, itemIndex) => (
+                            <div className="admin-sublist__row" key={`${group.name}-${itemIndex}`}>
+                              <input
+                                value={item}
+                                onChange={(event) =>
+                                  mutateDraft((next) => {
+                                    next.techStack[groupIndex].items[itemIndex] = event.target.value;
+                                  })
+                                }
+                              />
+                              <button
+                                type="button"
+                                className="button"
+                                onClick={() =>
+                                  mutateDraft((next) => {
+                                    next.techStack[groupIndex].items.splice(itemIndex, 1);
+                                  })
+                                }
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            className="button"
+                            onClick={() =>
+                              mutateDraft((next) => {
+                                next.techStack[groupIndex].items.push("New item");
+                              })
+                            }
+                          >
+                            아이템 추가
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Award</p>
+                  <h3>Awards</h3>
+                </div>
+                <button type="button" className="button" onClick={() => mutateDraft((next) => { next.awards.push(createAward()); })}>
+                  수상 추가
+                </button>
+              </div>
+              <div className="admin-list">
+                {draft.awards.map((award, awardIndex) => (
+                  <article className="admin-list-item" key={`${award.year}-${awardIndex}`}>
+                    <div className="admin-list-item__header">
+                      <strong>수상 {awardIndex + 1}</strong>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() =>
+                          mutateDraft((next) => {
+                            next.awards.splice(awardIndex, 1);
+                          })
+                        }
+                      >
+                        삭제
+                      </button>
+                    </div>
+                    <div className="admin-fields">
+                      <label className="admin-field">
+                        <span>Year</span>
+                        <input
+                          value={award.year}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.awards[awardIndex].year = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field">
+                        <span>Status</span>
+                        <input
+                          value={award.status}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.awards[awardIndex].status = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field">
+                        <span>Issuer</span>
+                        <input
+                          value={award.issuer}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.awards[awardIndex].issuer = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field admin-field--wide">
+                        <span>Name</span>
+                        <input
+                          value={award.name}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.awards[awardIndex].name = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Certificate</p>
+                  <h3>Certificates</h3>
+                </div>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() =>
+                    mutateDraft((next) => {
+                      next.certificates.push("새 자격증");
+                    })
+                  }
+                >
+                  자격증 추가
+                </button>
+              </div>
+              <div className="admin-list">
+                {draft.certificates.map((certificate, certificateIndex) => (
+                  <div className="admin-sublist__row" key={`${certificate}-${certificateIndex}`}>
+                    <input
+                      value={certificate}
+                      onChange={(event) =>
+                        mutateDraft((next) => {
+                          next.certificates[certificateIndex] = event.target.value;
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={() =>
+                        mutateDraft((next) => {
+                          next.certificates.splice(certificateIndex, 1);
+                        })
+                      }
+                    >
+                      삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="admin-card">
+              <div className="admin-card__header">
+                <div>
+                  <p className="eyebrow">Project</p>
+                  <h3>Projects</h3>
+                </div>
+                <button type="button" className="button" onClick={() => mutateDraft((next) => { next.projects.push(createProject()); })}>
+                  프로젝트 추가
+                </button>
+              </div>
+              <div className="admin-list">
+                {draft.projects.map((project, projectIndex) => (
+                  <article className="admin-list-item" key={`${project.title}-${projectIndex}`}>
+                    <div className="admin-list-item__header">
+                      <strong>프로젝트 {projectIndex + 1}</strong>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() =>
+                          mutateDraft((next) => {
+                            next.projects.splice(projectIndex, 1);
+                          })
+                        }
+                      >
+                        삭제
+                      </button>
+                    </div>
+
+                    <div className="admin-fields">
+                      <label className="admin-field">
+                        <span>Title</span>
+                        <input
+                          value={project.title}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].title = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field">
+                        <span>Subtitle</span>
+                        <input
+                          value={project.subtitle}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].subtitle = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field admin-field--wide">
+                        <span>Summary</span>
+                        <textarea
+                          className="admin-textarea"
+                          value={project.summary}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].summary = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <div className="admin-fields">
+                      <label className="admin-field">
+                        <span>Period</span>
+                        <input
+                          value={project.meta.period}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].meta.period = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field">
+                        <span>Role</span>
+                        <input
+                          value={project.meta.role}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].meta.role = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field">
+                        <span>Team</span>
+                        <input
+                          value={project.meta.team}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].meta.team = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="admin-field admin-field--wide">
+                        <span>Code link</span>
+                        <input
+                          value={project.meta.code}
+                          onChange={(event) =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].meta.code = event.target.value;
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <div className="admin-field admin-field--wide">
+                      <span>Stack</span>
+                      <div className="admin-sublist">
+                        {project.meta.stack.map((stackItem, stackIndex) => (
+                          <div className="admin-sublist__row" key={`${project.title}-${stackIndex}`}>
+                            <input
+                              value={stackItem}
+                              onChange={(event) =>
+                                mutateDraft((next) => {
+                                  next.projects[projectIndex].meta.stack[stackIndex] = event.target.value;
+                                })
+                              }
+                            />
+                            <button
+                              type="button"
+                              className="button"
+                              onClick={() =>
+                                mutateDraft((next) => {
+                                  next.projects[projectIndex].meta.stack.splice(stackIndex, 1);
+                                })
+                              }
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].meta.stack.push("New stack");
+                            })
+                          }
+                        >
+                          스택 추가
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="admin-field admin-field--wide">
+                      <div className="admin-card__header">
+                        <div>
+                          <p className="eyebrow">Details</p>
+                          <h3>Expandable notes</h3>
+                        </div>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() =>
+                            mutateDraft((next) => {
+                              next.projects[projectIndex].details.push({
+                                title: "새 상세 항목",
+                                body: "세부 내용을 입력하세요.",
+                              });
+                            })
+                          }
+                        >
+                          상세 추가
+                        </button>
+                      </div>
+
+                      <div className="admin-list">
+                        {project.details.map((detail, detailIndex) => (
+                          <article className="admin-list-item" key={`${detail.title}-${detailIndex}`}>
+                            <div className="admin-list-item__header">
+                              <strong>상세 {detailIndex + 1}</strong>
+                              <button
+                                type="button"
+                                className="button"
+                                onClick={() =>
+                                  mutateDraft((next) => {
+                                    next.projects[projectIndex].details.splice(detailIndex, 1);
+                                  })
+                                }
+                              >
+                                삭제
+                              </button>
+                            </div>
+                            <div className="admin-fields">
+                              <label className="admin-field">
+                                <span>Title</span>
+                                <input
+                                  value={detail.title}
+                                  onChange={(event) =>
+                                    mutateDraft((next) => {
+                                      next.projects[projectIndex].details[detailIndex].title = event.target.value;
+                                    })
+                                  }
+                                />
+                              </label>
+                              <label className="admin-field admin-field--wide">
+                                <span>Markdown body</span>
+                                <textarea
+                                  className="admin-textarea"
+                                  value={detail.body}
+                                  onChange={(event) =>
+                                    mutateDraft((next) => {
+                                      next.projects[projectIndex].details[detailIndex].body = event.target.value;
+                                    })
+                                  }
+                                />
+                              </label>
+                              <div className="admin-markdown-preview admin-field--wide" aria-label="Markdown preview">
+                                <div className="admin-markdown-preview__header">
+                                  <span>Preview</span>
+                                </div>
+                                <MarkdownViewer markdown={detail.body} />
+                              </div>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </div>
         </section>
       ) : null}
     </div>
