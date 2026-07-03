@@ -164,7 +164,7 @@ export default async function Home({ searchParams }: HomeProps) {
       </section>
 
       <section className="section-block section-block--tight" id="projects">
-        <div className="section-head section-head--split">
+        <div className="section-head">
           <div>
             <p className="eyebrow">Projects</p>
             <h2>주요 프로젝트</h2>
